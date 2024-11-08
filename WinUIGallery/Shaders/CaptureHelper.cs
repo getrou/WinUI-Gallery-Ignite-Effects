@@ -30,7 +30,7 @@ namespace WinUIGallery.Shaders
             await renderTarget.RenderAsync(root, (int)(uiElement.RenderSize.Width * 96.0f / dpi), (int)(uiElement.RenderSize.Height * 96.0f / dpi));
         }
 
-        public static async Task<Tuple<Rect, float>> CaptureTo(this ContentDialog dialog, RenderTargetBitmap renderTarget)
+        public static async Task<Rect> CaptureTo(this ContentDialog dialog, RenderTargetBitmap renderTarget)
         {
             // The dialog is actually a full window element because it darkens the screen
             // when it appears. Drill in a bit to get to the actual element that contains
@@ -55,14 +55,9 @@ namespace WinUIGallery.Shaders
 
             var transformedBounds = transform.TransformBounds(originalBounds);
 
-            // Adjust for DPI
-            //transformedBounds.Width = transformedBounds.Width / dpi;
-            //transformedBounds.Height = transformedBounds.Height / dpi;
-
             await renderTarget.RenderAsync(dialogContent, (int)(transformedBounds.Width / dpi), (int)(transformedBounds.Height / dpi));
-            //await renderTarget.RenderAsync(dialogContent);
 
-            return new(transformedBounds, dpi);
+            return transformedBounds;
         }
 
         public static float GetDpi(UIElement element)
