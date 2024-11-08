@@ -25,6 +25,7 @@ namespace WinUIGallery.Shaders
         public CanvasDrawEventArgs EventArgs;
         public TimeSpan Duration;
         public SizeInt32 InputSize;
+        public float Dpi;
 
         public int2 CanvasSizeInt2 => new int2((int)CanvasSize.Width, (int)CanvasSize.Height);
 
@@ -170,10 +171,10 @@ namespace WinUIGallery.Shaders
 
             drawFunc = (ShaderDrawData drawData) =>
             {
-                //float scale = 1.0f / 1.25f;
-                //var originalSize = drawData.CanvasSizeInt2;
-                //var size = new int2((int)(originalSize.X * scale), (int)(originalSize.Y * scale));
-                effect.ConstantBuffer = new TwirlDismiss((float)drawData.Duration.TotalSeconds, drawData.InputSizeInt2);
+                float scale = drawData.Dpi / 96.0f;
+                var originalSize = drawData.CanvasSizeInt2;
+                var size = new int2((int)(originalSize.X * scale), (int)(originalSize.Y * scale));
+                effect.ConstantBuffer = new TwirlDismiss((float)drawData.Duration.TotalSeconds, size);
             };
 
             return effect;
