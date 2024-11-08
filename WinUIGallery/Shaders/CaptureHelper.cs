@@ -30,7 +30,7 @@ namespace WinUIGallery.Shaders
             await renderTarget.RenderAsync(root, (int)(uiElement.RenderSize.Width * 96.0f / dpi), (int)(uiElement.RenderSize.Height * 96.0f / dpi));
         }
 
-        public static async Task<Rect> CaptureTo(this ContentDialog dialog, RenderTargetBitmap renderTarget)
+        public static async Task<Tuple<Rect, float>> CaptureTo(this ContentDialog dialog, RenderTargetBitmap renderTarget)
         {
             // The dialog is actually a full window element because it darkens the screen
             // when it appears. Drill in a bit to get to the actual element that contains
@@ -40,7 +40,7 @@ namespace WinUIGallery.Shaders
             var child3 = VisualTreeHelper.GetChild(child2, 0);
 
             var dialogContent = child3 as Border;
-            var dpi = GetDpi(dialog);
+            var dpi = GetDpi(dialog) / 96.0f;
 
             // Get transform from dialog content to the window wide dialog.
             // This will let us position things later.
@@ -55,14 +55,14 @@ namespace WinUIGallery.Shaders
 
             var transformedBounds = transform.TransformBounds(originalBounds);
 
-            transformedBounds.X = transformedBounds.X;
-            transformedBounds.Y = transformedBounds.Y;
-            transformedBounds.Width = transformedBounds.Width;
-            transformedBounds.Height = transformedBounds.Height;
+            // Adjust for DPI
+            //transformedBounds.Width = transformedBounds.Width / dpi;
+            //transformedBounds.Height = transformedBounds.Height / dpi;
 
-            await renderTarget.RenderAsync(dialogContent, (int)(dialogContent.RenderSize.Width * 96.0f / dpi), (int)(dialogContent.RenderSize.Height * 96.0f / dpi));
+            await renderTarget.RenderAsync(dialogContent, (int)(transformedBounds.Width / dpi), (int)(transformedBounds.Height / dpi));
+            //await renderTarget.RenderAsync(dialogContent);
 
-            return transformedBounds;
+            return new(transformedBounds, dpi);
         }
          
         private static float GetDpi(UIElement element)

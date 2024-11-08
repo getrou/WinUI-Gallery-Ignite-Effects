@@ -65,16 +65,32 @@ namespace WinUIGallery.ControlPages
                 // Get a deferral until the shader starts rendering.
                 var deferral = args.GetDeferral();
 
-                m_dialogRect = await sender.CaptureTo(m_bitmap);
+                (m_dialogRect, float dpi) = await sender.CaptureTo(m_bitmap);
 
                 // Calculate offset from Window root to the overlay element
                 var transform = this.XamlRoot.Content.TransformToVisual(overlayPanel);
                 var overlayOffset = transform.TransformPoint(new Point(0, 0));
+
                 var dialogShaderPanel = new ShaderPanel();
                 dialogShaderPanel.InitializeForShader<TwirlDismiss>();
                 dialogShaderPanel.Translation = new Vector3((float)overlayOffset.X, (float)overlayOffset.Y, 0);
                 dialogShaderPanel.Width = m_dialogRect.Width;
                 dialogShaderPanel.Height = m_dialogRect.Height;
+
+                var clipRect = new Rect()
+                {
+                    X = 0,
+                    Y = 0,
+                    Width = m_dialogRect.Width,
+                    Height = m_dialogRect.Height
+                };
+
+                //var image = new Image();
+                //image.Stretch = Stretch.None;
+                //image.Source = m_bitmap;
+                //image.Translation = new Vector3((float)overlayOffset.X, (float)overlayOffset.Y, 0);
+                //image.Width = m_dialogRect.Width;
+                //image.Height = m_dialogRect.Height;
 
                 // Offset from the overlay element to the dialog
                 Point offset = new() { X = m_dialogRect.X, Y = m_dialogRect.Y };
@@ -87,11 +103,12 @@ namespace WinUIGallery.ControlPages
                 await dialogShaderPanel.SetRenderTargetBitmapAsync(m_bitmap);
 
                 overlayPanel.AddOverlay(dialogShaderPanel, offset);
+                // deferral.Complete();
 
                 await Task.Delay(TimeSpan.FromSeconds(1.0f)); // sync with duration in TwirlDismiss
 
                 overlayPanel.ClearOverlays();
-            }   
+            }
         }
 
         private RenderTargetBitmap m_bitmap = new RenderTargetBitmap();
