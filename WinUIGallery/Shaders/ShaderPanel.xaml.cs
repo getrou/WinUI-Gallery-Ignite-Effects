@@ -75,7 +75,8 @@ namespace WinUIGallery.Shaders
                 CanvasSize = sender.Size,
                 EventArgs = args,
                 Duration = DateTime.Now - startTime,
-                WipeDirection = WipeDirection
+                WipeDirection = WipeDirection,
+                Dpi = CaptureHelper.GetDpi(this)
             };
 
             Renderer.Draw(drawData);

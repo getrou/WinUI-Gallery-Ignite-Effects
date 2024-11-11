@@ -12,6 +12,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Graphics;
 using Windows.Graphics.Effects;
 
 using EffectSourceList = System.Collections.Generic.IList<Windows.Graphics.Effects.IGraphicsEffectSource>;
@@ -25,8 +26,12 @@ namespace WinUIGallery.Shaders
         public CanvasDrawEventArgs EventArgs;
         public TimeSpan Duration;
         public Vector2 WipeDirection;
+        public SizeInt32 InputSize;
+        public float Dpi;
 
         public int2 CanvasSizeInt2 => new int2((int)CanvasSize.Width, (int)CanvasSize.Height);
+
+        public int2 InputSizeInt2 => new int2(InputSize.Width, InputSize.Height);
     }
 
     // Unfortunately we need to use type erasure to instantiate through generics...
@@ -67,6 +72,11 @@ namespace WinUIGallery.Shaders
                         // One of our sources isn't bound. Bail.
                         return;
                     }
+                }
+
+                if (m_shaderSources.Count > 0)
+                {
+                    data.InputSize = m_shaderSources[0].BufferSize;
                 }
 
                 m_impl.DrawAction(data);
@@ -136,7 +146,10 @@ namespace WinUIGallery.Shaders
 
             drawFunc = (ShaderDrawData drawData) =>
             {
-                effect.ConstantBuffer = new TwirlDismiss((float)drawData.Duration.TotalSeconds, drawData.CanvasSizeInt2);
+                float scale = drawData.Dpi / 96.0f;
+                var originalSize = drawData.CanvasSizeInt2;
+                var size = new int2((int)(originalSize.X * scale), (int)(originalSize.Y * scale));
+                effect.ConstantBuffer = new TwirlDismiss((float)drawData.Duration.TotalSeconds, size);
             };
 
             return effect;
