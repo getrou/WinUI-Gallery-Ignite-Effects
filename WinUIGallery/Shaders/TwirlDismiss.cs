@@ -37,7 +37,6 @@ internal readonly partial struct TwirlDismiss(float time, int2 resolution) : ID2
         float radiansDelta =  percentOut * outsideRadians + (1-percentOut) * insideRadians;
         float radiansFinal = radiansInitial + radiansDelta;
 
-
         float cos = Hlsl.Cos(radiansFinal);
         float sin = Hlsl.Sin(radiansFinal);
         if (size == 0)
