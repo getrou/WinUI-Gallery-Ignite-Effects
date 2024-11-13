@@ -25,9 +25,10 @@ namespace WinUIGallery.Shaders
         {
             var root = GetRoot(uiElement);
 
-            var dpi = GetDpi(uiElement);
+            //var dpi = GetDpi(uiElement);
+            await renderTarget.RenderAsync(uiElement);
 
-            await renderTarget.RenderAsync(root, (int)(uiElement.RenderSize.Width * 96.0f / dpi), (int)(uiElement.RenderSize.Height * 96.0f / dpi));
+            //await renderTarget.RenderAsync(root, (int)(uiElement.RenderSize.Width * 96.0f / dpi), (int)(uiElement.RenderSize.Height * 96.0f / dpi));
         }
 
         public static async Task<Rect> CaptureTo(this ContentDialog dialog, RenderTargetBitmap renderTarget)

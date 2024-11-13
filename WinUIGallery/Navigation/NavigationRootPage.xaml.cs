@@ -115,6 +115,13 @@ namespace WinUIGallery
                 appWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
                 _settings = new UISettings();
                 _settings.ColorValuesChanged += _settings_ColorValuesChanged; // cannot use FrameworkElement.ActualThemeChanged event because the triggerTitleBarRepaint workaround no longer works
+
+                this.HorizontalAlignment = HorizontalAlignment.Left;
+                this.VerticalAlignment = VerticalAlignment.Top;
+                this.Width = 1200;
+                this.Height = 800;
+                //overlayPanel.Width = 1000;
+                //overlayPanel.Height = 800;
             };
         }
 
@@ -216,14 +223,26 @@ namespace WinUIGallery
                     overlayVisual.StartAnimation("Opacity", opacityAnimation);
                 }
 
-                var transform = frame.TransformToVisual(null);
-                Point offset = transform.TransformPoint(new Point(0, 0));
-                Rect clip = new Rect(offset.X, offset.Y, shaderPanel.Width, shaderPanel.Height);
+                var transform = rootFrame.TransformToVisual(null);
+                Point offset = new Point(0, 0);// transform.TransformPoint(new Point(0, 0));
+                Rect clip = new Rect(offset.X, offset.Y, rootFrame.Width, rootFrame.Height);
 
-                await shaderPanel.SetShaderInputAsync(m_fullBitmap, clip);
+                await shaderPanel.SetShaderInputAsync(m_fullBitmap, null);// clip);
 
-                overlayPanel.AddOverlay(shaderPanel, offset);
-                shaderPanel.ShaderCompleted += (s, e) => overlayPanel.ClearOverlay(shaderPanel);
+                Image image = new Image();
+                image.Source = m_fullBitmap;
+                image.Stretch = Microsoft.UI.Xaml.Media.Stretch.None;
+                //image.RasterizationScale = 96.0f / CaptureHelper.GetDpi(rootFrame);
+                overlayPanel.AddOverlay(image, offset);
+
+                //overlayPanel.AddOverlay(shaderPanel, offset);
+                shaderPanel.ShaderCompleted += (s, e) =>
+                {
+                    overlayPanel.ClearOverlay(shaderPanel);
+                };
+
+                await Task.Delay(TimeSpan.FromSeconds(1.0f));
+                overlayPanel.ClearOverlay(image);
 
                 NavigateHelper(pageType, targetPageArguments, navigationTransitionInfo);
 #else
